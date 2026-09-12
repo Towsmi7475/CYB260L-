@@ -1,4 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+# Description: Added an additional EBS volume for persistent storage
+# Revision: 1.1
+# Date: 2026-09-08
+
+Description: Amazon Elastic Compute Cloud (EC2) Template
+
+Parameters:
+  LatestAmiId:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+
 Resources:
   Instance:
     Type: AWS::EC2::Instance
-    Properties: {}
+    Properties:
+      ImageId: !Ref LatestAmiId
+      KeyName: !Ref AWS::AccountId
+      InstanceType: t2.micro
+
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: false
+            VolumeSize: 20
