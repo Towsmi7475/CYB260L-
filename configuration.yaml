@@ -1,0 +1,11 @@
+student_3bibg@ca-lab-vm:~/deployment$ cat configuration.yaml
+imports:
+- path: calab-vpc.jinja
+- path: calab-bucket.jinja
+ 
+resources:
+- name: calab-vpc
+  type: calab-vpc.jinja
+- name: calab-bucket
+  type: calab-bucket.jinja
+student_3bibg@ca-lab-vm:~/deployment$ 

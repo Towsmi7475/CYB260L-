@@ -1,0 +1,122 @@
+# Description of what this change includes:
+# Added a VPC spanning three Availability Zones in us-west-2,
+# including three subnets, DNS support, DNS hostnames, and
+# student ID naming conventions. Also added an Amazon RDS
+# MySQL database instance (db.t3.micro) with 5 GB storage.
+#
+# Revision number: 1.1
+# Date: 2026-10-02
+ 
+AWSTemplateFormatVersion: '2010-09-09'
+ 
+Description: >
+CloudFormation template for creating a VPC in the AWS US West (Oregon)
+region (us-west-2) spanning three Availability Zones for student Towsmi7475.
+Includes an Amazon RDS MySQL database instance.
+ 
+Conditions:
+IsUsWest2: !Equals [!Ref 'AWS::Region', 'us-west-2']
+ 
+Resources:
+ 
+RdsInstance:
+Type: AWS::RDS::DBInstance
+Properties:
+VPCSecurityGroups:
+- <SECURITY-GROUP-ID>
+AllocatedStorage: '5'
+DBInstanceClass: db.t3.micro
+DBInstanceIdentifier: playground-db
+Engine: mysql
+MasterUsername: Admin
+MasterUserPassword: CloudAcademy123!
+PubliclyAccessible: false
+ 
+# VPC with a /16 private IPv4 CIDR block
+VPC:
+Type: AWS::EC2::VPC
+Condition: IsUsWest2
+Properties:
+CidrBlock: 10.0.0.0/16
+EnableDnsSupport: true
+EnableDnsHostnames: true
+Tags:
+- Key: Name
+Value: VPC-Towsmi7475
+ 
+# Subnet in the first Availability Zone
+Subnet1:
+Type: AWS::EC2::Subnet
+Condition: IsUsWest2
+Properties:
+VpcId: !Ref VPC
+CidrBlock: 10.0.1.0/24
+AvailabilityZone: !Select
+- 0
+- !GetAZs ''
+Tags:
+- Key: Name
+Value: VPC-Towsmi7475-Subnet-AZ1
+ 
+# Subnet in the second Availability Zone
+Subnet2:
+Type: AWS::EC2::Subnet
+Condition: IsUsWest2
+Properties:
+VpcId: !Ref VPC
+CidrBlock: 10.0.2.0/24
+AvailabilityZone: !Select
+- 1
+- !GetAZs ''
+Tags:
+- Key: Name
+Value: VPC-Towsmi7475-Subnet-AZ2
+ 
+# Subnet in the third Availability Zone
+Subnet3:
+Type: AWS::EC2::Subnet
+Condition: IsUsWest2
+Properties:
+VpcId: !Ref VPC
+CidrBlock: 10.0.3.0/24
+AvailabilityZone: !Select
+- 2
+- !GetAZs ''
+Tags:
+- Key: Name
+Value: VPC-Towsmi7475-Subnet-AZ3
+ 
+Outputs:
+ 
+VPCId:
+Description: ID of the VPC
+Value: !Ref VPC
+Condition: IsUsWest2
+ 
+VPCName:
+Description: Name of the VPC
+Value: VPC-Towsmi7475
+Condition: IsUsWest2
+ 
+Subnet1Id:
+Description: ID of the first subnet
+Value: !Ref Subnet1
+Condition: IsUsWest2
+ 
+Subnet2Id:
+Description: ID of the second subnet
+Value: !Ref Subnet2
+Condition: IsUsWest2
+ 
+Subnet3Id:
+Description: ID of the third subnet
+Value: !Ref Subnet3
+Condition: IsUsWest2
+ 
+RdsInstanceId:
+Description: RDS Instance Identifier
+Value: !Ref RdsInstance
+ 
+RdsEndpointAddress:
+Description: Endpoint address of the RDS instance
+Value: !GetAtt RdsInstance.Endpoint.Address
